@@ -1,0 +1,19 @@
+model
+{
+  phi~dunif(0,10)
+  tau~dunif(0,100)
+  a~dnorm(0,0.001)
+  for(i in 1:n)
+  {
+    b[i]~ddexp(0,lambda_)
+  }
+  for(t in 1:end)
+  {
+    R[t]=exp(sum(b[1:n]*accumulator_matrix[t,1:n])+a)
+  }
+  for(t in start:end)
+  {
+    mu[t-start+1]=sum(local_cases[max(t-m,1):(t-1)]*R[max(t-m,1):(t-1)]*inv_serial_distribution[1:(t-max(t-m,1))])+phi*sum(imported_cases[max(t-m,1):(t-1)]*inv_serial_distribution[1:(t-max(t-m,1))])
+    local_cases[t]~dnegbin(1/tau,mu[t-start+1]/(tau-1))
+  }
+}
